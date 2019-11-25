@@ -24,15 +24,21 @@ TODO INDENT/DEDENT pomocni zasobnik
 #define DECIMAL_BEGIN_STATE   114
 #define DECIMAL_STATE   115
 #define ESCAPE_CHAR_STATE   116
+#define EXPONENT_E      117
+#define EXPONENT_NUMBER 118
+#define EXPONENT_SIGN   119
 
 FILE *file;
+int dent_array[];
+dent_array[0] = 0;
 
 
 int get_token(Token *token){
 
     int scanner_state = START_STATE;
     int quote_count = 0;
-    char *c;
+    char c;
+    token->type = TOKEN_EMPTY_FILE;
 
     while (true){
         
@@ -143,7 +149,10 @@ int get_token(Token *token){
                     scanner_state = DECIMAL_BEGIN_STATE;
                     //TODO store the point
                 }
-                //TODO 'e' 
+                else if(tolower(c) == 'e'){
+                    scanner_state = EXPONENT_E;
+                    //TODO save 'e' to string
+                } 
                 else{
                     //TODO number ended, process it
                 }
@@ -163,15 +172,53 @@ int get_token(Token *token){
 
             case (DECIMAL_STATE):
                 if(isdigit(c)){
-                    scanner_state = DECIMAL_STATE; //stay in this state
+                    scanner_state = DECIMAL_STATE; //stay in this state, might be unnecessary
                     //TODO store the digit
                 }
-                //TODO 'e'
+                else if (tolower(c) == 'e'){
+                    scanner_state = EXPONENT_E;
+                    //TODO save the 'e' to the string
+                }
                 else{
                     //TODO number ended, store it
                     token->type = TOKEN_FLOAT;
                 }
                 
+                break;
+            
+            case (EXPONENT_E):
+                if(isdigit(c)){
+                    scanner_state = EXPONENT_NUMBER;
+                    //TODO store the number 
+                }
+                else if(c == '+' || c == '-'){
+                    scanner_state = EXPONENT_SIGN;
+                    //TODO save the sign to the string
+                }
+                else{
+                    return SCANNER_ERROR;
+                }
+                
+                break;
+            
+            case (EXPONENT_SIGN):
+                if(isdigit(c)){
+                    scanner_state = EXPONENT_NUMBER;
+                    //TODO store the number
+                }
+                else{
+                    return SCANNER_ERROR;
+                }
+                break;
+
+            case (EXPONENT_NUMBER):
+                if(isdigit(c)){
+                    //TODO store the number
+                }
+                else{
+                    //TODO number ended, process it
+                    token->type = TOKEN_FLOAT;
+                }
                 break;
 
             case (STRING_STATE):

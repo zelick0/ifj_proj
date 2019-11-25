@@ -16,6 +16,7 @@ typedef enum{
 }Keyword;
 
 typedef enum{
+    TOKEN_EMPTY_FILE,
     TOKEN_KEYWORD,
     TOKEN_ID,
     TOKEN_INTEGER,
