@@ -2,6 +2,7 @@
 #define _ERROR_H
 
 #define SCANNER_OK      0
+#define SYNTAX_OK       0
 #define SCANNER_ERROR   1   
 #define SYNTAX_ERROR    2
 #define SEM_ERROR_UNDEF 3
