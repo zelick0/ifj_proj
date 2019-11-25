@@ -27,16 +27,18 @@ TODO INDENT/DEDENT pomocni zasobnik
 #define EXPONENT_E      117
 #define EXPONENT_NUMBER 118
 #define EXPONENT_SIGN   119
+#define DENT_COUNTING   120
 
 FILE *file;
-int dent_array[];
-dent_array[0] = 0;
+int dent_stack[];
+dent_stack[0] = 0;
 
 
 int get_token(Token *token){
 
     int scanner_state = START_STATE;
     int quote_count = 0;
+    int dent_count = 0;
     char c;
     token->type = TOKEN_EMPTY_FILE;
 
@@ -48,12 +50,18 @@ int get_token(Token *token){
             
             case(START_STATE):
                 
-                if(isspace(c)){
+                if(isspace(c) && c != ' '){
                     scanner_state = START_STATE;
+                }
+
+                else if(c == ' '){
+                    dent_count++;
+                    scanner_state = DENT_COUNTING;
                 }
 
                 else if (c == '\n'){
                     token->type = TOKEN_EOL;
+                    dent_count = 0;
                     return SCANNER_OK;
                 }
 
@@ -112,7 +120,7 @@ int get_token(Token *token){
                     scanner_state = EQ_STATE;
                 }
 
-                 else if (c == '!'){
+                else if (c == '!'){
                     scanner_state = NEQ_STATE;
                 }
 
@@ -126,6 +134,15 @@ int get_token(Token *token){
                     return SCANNER_OK;
                 }
 
+                break;
+
+            case (DENT_COUNTING):
+                if (c == ' '){
+                    dent_count++;
+                }
+                else{
+                    //TODO process dent_stack
+                }
                 break;
 
             case (IDKW_STATE):
